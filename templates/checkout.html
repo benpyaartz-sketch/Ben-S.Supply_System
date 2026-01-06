@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 40px auto; background: #ffffff; padding: 30px 40px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.1);">
+    
+    <h2 class="highlight-title" style="text-align:center; margin-bottom:30px;">Checkout</h2>
+
+    <!-- Cart Items Table -->
+    <div style="overflow-x:auto; margin-bottom:25px;">
+        <table style="width:100%; border-collapse:collapse; text-align:left;">
+            <thead style="background:#1c99ec;">
+                <tr>
+                    <th style="padding:12px; border-bottom:2px solid #ddd;">Bidhaa</th>
+                    <th style="padding:12px; border-bottom:2px solid #ddd;">Bei</th>
+                    <th style="padding:12px; border-bottom:2px solid #ddd;">Kiasi</th>
+                    <th style="padding:12px; border-bottom:2px solid #ddd;">Jumla</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart %}
+                <tr style="border-bottom:1px solid #300202;">
+                    <td style="padding:10px 12px;">{{ item.name }}</td>
+                    <td style="padding:10px 12px;">{{ item.price | currency_tzs }}</td>
+                    <td style="padding:10px 12px;">{{ item.quantity }}</td>
+                    <td style="padding:10px 12px;">{{ (item.price * item.quantity) | currency_tzs }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h3 style="text-align:right; margin-bottom:30px;">Jumla: <strong>{{ total | currency_tzs }}</strong></h3>
+
+    <!-- Checkout Form -->
+    <form method="POST">
+        <div style="margin-bottom:15px;">
+            <label>Jina:</label>
+            <input type="text" name="customer_name" required class="form-control">
+        </div>
+
+        <div style="margin-bottom:15px;">
+            <label>Namba ya Simu:</label>
+            <input type="text" name="customer_phone" required class="form-control">
+        </div>
+
+        <div style="margin-bottom:25px;">
+            <label>Mahali (Location):</label>
+            <input type="text" name="customer_address" required class="form-control">
+        </div>
+
+        <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+            <a href="{{ url_for('cart') }}" class="btn btn-warning" style="flex:1; text-align:center;">← Rudi Kuongeza Bidhaa</a>
+            <a href="{{ url_for('clear_cart') }}" class="btn btn-danger" onclick="return confirm('Una uhakika unataka kufuta order hii?');" style="flex:1; text-align:center;">Cancel Order</a>
+            <button type="submit" class="btn btn-success" style="flex:1;">Thibitisha Oda</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+<style>
+label {
+    display:block;
+    margin-bottom:6px;
+    font-weight:600;
+    color:#333;
+}
+input, textarea {
+    width:100%;
+    padding:10px 12px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    color:#333;
+    font-size:14px;
+}
+textarea { resize: vertical; }
+button {
+    padding:12px 20px;
+    background:#007bff;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.3s;
+}
+button:hover { background:#e20926; }
+
+.flash.success { background:#3a06c9; padding:10px; margin:10px 0; border-radius:5px; color:#155724; }
+.flash.error { background:#f8d7da; padding:10px; margin:10px 0; border-radius:5px; color:#721c24; }
+.flash.warning { background:#fff3cd; padding:10px; margin:10px 0; border-radius:5px; color:#856404; }
+
+.highlight-title {
+    background: #004080;
+    color: white;
+    padding: 8px 18px;
+    border-radius: 8px;
+    display: inline-block;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+}
+a.btn {
+    padding:12px 0;
+    border-radius:8px;
+    color:white;
+    text-decoration:none;
+    display:inline-block;
+    text-align:center;
+    transition:0.3s;
+}
+a.btn-warning { background:#ffc107; }
+a.btn-warning:hover { background:#e0a800; }
+a.btn-danger { background:#dc3545; }
+a.btn-danger:hover { background:#b02a37; }
+a.btn-success { background:#28a745; }
+a.btn-success:hover { background:#1e7e34; }
+</style>

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}BEN-S.SUPPLY{% endblock %}
+
+{% block content %}
+<h1 class="highlight-title" style="text-align:center;">Wasiliana Nasi</h1>
+
+<div style="max-width:600px; margin:auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+    <p><strong>Simu:</strong> +255 692 852 961</p>
+    <p><strong>Email:</strong> benpyaartz@gmail.com</p>
+    <p><strong>Anuani:</strong> Kagera, Tanzania</p>
+    <p>Tunapenda kusikia kutoka kwako! Tafadhali wasiliana nasi kwa maulizo, maoni, au usaidizi wowote.</p>
+</div>
+
+<!-- FORM YA MAONI -->
+<div style="max-width:600px; margin:30px auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+    <form method="POST" action="{{ url_for('feedback') }}">
+        <label>Jina lako:</label><br>
+        <input type="text" name="name" required style="width:100%; padding:8px; margin:5px 0;"><br><br>
+
+        <label>Email (hiari):</label><br>
+        <input type="email" name="email" style="width:100%; padding:8px; margin:5px 0;"><br><br>
+
+        <label>Ujumbe wako:</label><br>
+        <textarea name="message" required style="width:100%; padding:8px; margin:5px 0;" rows="5"></textarea><br><br>
+
+        <button type="submit" style="background:#28a745; color:white; padding:10px 20px; border:none; border-radius:5px; cursor:pointer;">
+            Tuma Maoni
+        </button>
+    </form>
+</div>
+
+<style>
+.highlight-title {
+    background: blue;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 6px;
+    display: inline-block;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+}
+</style>
+{% endblock %}

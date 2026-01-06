@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Kikapu cha Bidhaa{% endblock %}
+
+{% block content %}
+<h1 class="highlight-title" style="text-align:center;">Kikapu Chako</h1>
+
+<div style="max-width:900px; margin:auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); color:#000;">
+
+    {% if cart_items %}
+    <table style="width:100%; border-collapse:collapse; margin-bottom:20px; color:#000;">
+        <thead style="background:#004080; color:white;">
+            <tr>
+                <th>Bidhaa</th>
+                <th>Picha</th>
+                <th>Idadi</th>
+                <th>Bei</th>
+                <th>Jumla</th>
+                <th>Ongeza / Ondoa</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart_items %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td><img src="{{ url_for('static', filename='uploads/' + item.image) }}" alt="{{ item.name }}" style="height:60px; border-radius:5px;"></td>
+                <td>
+                    <input type="number" value="{{ item.quantity }}" min="1" style="width:60px; text-align:center;" onchange="updateQuantity({{ item.product_id }}, this.value)">
+                </td>
+                <td>{{ item.price | currency_tzs }}</td>
+                <td>{{ (item.price * item.quantity) | currency_tzs }}</td>
+                <td>
+                    <button onclick="removeFromCart({{ item.product_id }})" style="padding:5px 10px; background:#dc3545; color:white; border:none; border-radius:5px; cursor:pointer;">Ondoa</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p style="text-align:right; font-weight:bold; font-size:18px;">Jumla ya Kikapu: {{ total | currency_tzs }}</p>
+    
+    {% else %}
+    <p style="text-align:center; font-weight:bold; font-size:18px; margin-top:30px;">Kikapu ni tupu.</p>
+    {% endif %}
+
+</div>
+
+<div style="text-align:right; margin-top:20px;">
+    <!-- Hii ndio button ya Rudi kwenye Bidhaa / Nyumbani -->
+    <a href="{{ url_for('home') }}" style="padding:10px 20px; background:#004080; color:white; border-radius:5px; text-decoration:none;">Rudi kwenye Bidhaa</a>
+    <a href="{{ url_for('checkout') }}" style="padding:10px 20px; background:#004080; color:white; border-radius:5px; text-decoration:none;">Endelea na Checkout</a>
+    <a href="{{ url_for('clear_cart') }}" style="padding:10px 20px; background:#dc3545; color:white; border-radius:5px; text-decoration:none;">Futa Oda</a>
+</div>
+
+<script>
+function updateQuantity(product_id, quantity) {
+    fetch('/update_cart_quantity/' + product_id, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({quantity: parseInt(quantity)})
+    }).then(res => res.json()).then(data => {
+        if(data.success){ location.reload(); }
+    });
+}
+
+function removeFromCart(product_id){
+    window.location.href = '/remove_from_cart/' + product_id;
+}
+</script>
+
+<style>
+.highlight-title {
+    background: linear-gradient(to right, #00111a, #00334d, #004080);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 6px;
+    display: inline-block;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+}
+table th, table td { padding:10px; border:1px solid #ddd; text-align:center; }
+table tr:hover { background:#f1f1f1; }
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+</style>
+{% endblock %}

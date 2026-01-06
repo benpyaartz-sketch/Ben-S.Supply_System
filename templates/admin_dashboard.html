@@ -1,0 +1,153 @@
+{% extends "base_admin.html" %}
+{% block title %}BEN-S.SUPPLY/ADMIN{% endblock %}
+
+{% block content %}
+<div style="display:flex; justify-content:center; margin-bottom:20px;">
+    <h1 class="highlight-title">Admin Dashboard – Ongeza Bidhaa Mpya</h1>
+</div>
+
+<!-- FORM YA KUONGEZA BIDHAA -->
+<form method="POST" enctype="multipart/form-data" 
+      style="max-width:500px; margin:auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+    <input type="hidden" name="add_product">
+    <label>Jina la Bidhaa:</label>
+    <input type="text" name="name" required style="width:100%; padding:8px; margin:5px 0;">
+    <label>Bei (TZS):</label>
+    <input type="number" step="0.01" name="price" required style="width:100%; padding:8px; margin:5px 0;">
+     {% for i in range(1,6) %}
+    <input type="file" name="image{{ i }}" accept="image/*" style="margin:5px 0;"><br>
+    {% endfor %}
+    <button type="submit" style="background:#28a745; color:white; padding:10px 20px; border:none; border-radius:5px; cursor:pointer;">
+        Ongeza Bidhaa
+    </button>
+</form>
+
+<hr style="margin:40px 0;">
+
+<h1 class="highlight-title" style="text-align:center;">Bidhaa Zilizopo</h1>
+<div class="products-grid">
+    {% for product in products %}
+    <div class="product-card">
+        {% set images = [product[3], product[4], product[5], product[6], product[7]] %}
+        <div class="image-slider" data-images="{{ images|join(',') }}">
+            {% for img in images if img %}
+            <img src="{{ url_for('static', filename='uploads/' + img) }}" alt="{{ product[1] }}">
+            {% endfor %}
+        </div>
+        <h3>{{ product[1] }}</h3>
+        <p class="price">{{ product[2] | currency_tzs }}</p>
+
+        <!-- Update Product -->
+        <form method="POST" enctype="multipart/form-data" style="margin-top:10px; text-align:left;">
+            <input type="hidden" name="update_product">
+            <input type="hidden" name="product_id" value="{{ product[0] }}">
+            <label>Jina:</label>
+            <input type="text" name="name" value="{{ product[1] }}" required style="width:100%; padding:5px; margin-bottom:5px;">
+            <label>Bei:</label>
+            <input type="number" step="0.01" name="price" value="{{ product[2] }}" required style="width:100%; padding:5px; margin-bottom:5px;">
+            {% for i in range(1,6) %}
+            <input type="file" name="image{{ i }}" accept="image/*" style="margin-bottom:5px;"><br>
+            {% endfor %}
+            <button type="submit" style="background:#007bff; color:white; padding:5px 10px; border:none; border-radius:5px; margin-top:5px;">
+                Update
+            </button>
+        </form>
+
+        <!-- Delete Product -->
+        <form method="POST" action="{{ url_for('delete_product', product_id=product[0]) }}" style="margin-top:5px;">
+            <button type="submit" onclick="return confirm('Una uhakika unataka kufuta bidhaa hii?')" 
+                style="background:#dc3545; color:white; padding:5px 10px; border:none; border-radius:5px;">
+                Delete
+            </button>
+        </form>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- IMAGE MODAL -->
+<div id="imageModal" class="modal">
+  <span class="close" id="imageModalClose">&times;</span>
+  <img class="modal-img" src="">
+  <a class="prev">&#10094;</a>
+  <a class="next">&#10095;</a>
+</div>
+
+<script>
+const imageModal = document.getElementById('imageModal');
+const modalImg = imageModal.querySelector('.modal-img');
+const prevBtn = imageModal.querySelector('.prev');
+const nextBtn = imageModal.querySelector('.next');
+const imageModalClose = document.getElementById('imageModalClose');
+
+let currentImages = [];
+let currentIndex = 0;
+let isAnimating = false;
+
+document.querySelectorAll('.image-slider').forEach(slider => {
+    const imgs = slider.querySelectorAll('img');
+    const imagesList = slider.dataset.images.split(',').filter(x => x);
+
+    imgs.forEach((img, i) => {
+        img.addEventListener('click', () => {
+            currentImages = imagesList.map(x => "{{ url_for('static', filename='uploads/') }}" + x);
+            currentIndex = i;
+
+            imageModal.style.display = 'flex';
+            modalImg.style.opacity = 0;
+            modalImg.src = currentImages[currentIndex];
+            modalImg.onload = () => { modalImg.style.opacity = 1; };
+        });
+    });
+});
+
+imageModalClose.addEventListener('click', () => { imageModal.style.display = 'none'; });
+imageModal.addEventListener('click', e => { if(e.target === imageModal) imageModal.style.display = 'none'; });
+
+function showImage(index) {
+    if (isAnimating) return;
+    isAnimating = true;
+    modalImg.style.opacity = 0;
+    setTimeout(() => {
+        currentIndex = (index + currentImages.length) % currentImages.length;
+        modalImg.src = currentImages[currentIndex];
+        modalImg.onload = () => {
+            modalImg.style.opacity = 1;
+            setTimeout(() => { isAnimating = false; }, 200);
+        };
+    }, 150);
+}
+prevBtn.addEventListener('click', () => showImage(currentIndex - 1));
+nextBtn.addEventListener('click', () => showImage(currentIndex + 1));
+</script>
+
+<style>
+.products-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:25px; }
+.product-card { background:#fff; padding:20px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1); text-align:center; transition:0.3s; }
+.product-card:hover { transform: translateY(-3px); box-shadow:0 6px 15px rgba(0,0,0,0.15); }
+.image-slider { display:flex; overflow-x:auto; gap:10px; cursor:grab; margin-bottom:15px; }
+.image-slider img { flex-shrink:0; max-height:180px; border-radius:8px; transition: transform 0.2s; }
+.image-slider img:hover { transform:scale(1.05); }
+
+.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); align-items:center; justify-content:center; z-index:9999; }
+#imageModal .modal-img { max-width:90%; max-height:90%; border-radius:10px; transition: opacity 0.2s ease; }
+#imageModal .prev, #imageModal .next { position:absolute; top:50%; color:white; font-size:40px; font-weight:bold; cursor:pointer; user-select:none; padding:0 15px; transform:translateY(-50%); }
+#imageModal .prev { left:0; } #imageModal .next { right:0; }
+#imageModal .prev:hover, #imageModal .next:hover { color:#ffcc00; }
+#imageModal .close { position:absolute; top:15px; right:20px; font-size:35px; font-weight:bold; color:white; cursor:pointer; z-index:10000; }
+#imageModal .close:hover { color:#ffcc00; }
+
+@media(max-width:500px){ .image-slider img { max-height:150px; } }
+
+.highlight-title {
+    background: #0274ee;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    display: inline-block;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+}
+
+.price { font-weight:bold; margin-top:5px; }
+</style>
+
+{% endblock %}

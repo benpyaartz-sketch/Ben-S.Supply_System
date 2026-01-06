@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Admin - Ben-S Supply{% endblock %}</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='right_logo.png') }}">
+
+    <style>
+    /* BODY */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: url("{{ url_for('static', filename='images/background.PNG') }}") no-repeat center center fixed;
+    background-size: cover;
+    padding-top: 60px;
+}
+
+    /* HEADER */
+    header {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 70px;
+        background: linear-gradient(to right, #00111a, #00334d, #004080);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        z-index: 3000;
+        overflow: hidden;
+    }
+
+    /* LOGO */
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        z-index: 2;
+    }
+    .logo img {
+        height: 45px;
+        width: auto;
+    }
+    .logo span {
+        font-weight: bold;
+        font-size: 18px;
+        color: white;
+    }
+
+    /* NAV */
+    nav {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        z-index: 2;
+    }
+    nav a {
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+        transition: color 0.3s, background 0.3s;
+        padding: 6px 12px;
+        border-radius: 5px;
+    }
+    nav a:hover {
+        background: #0dcaf0;
+        color: black;
+    }
+
+    /* MAIN */
+    main { 
+        flex: 1; 
+        max-width: 1000px; 
+        margin: 20px auto; 
+        padding: 0 15px; 
+    }
+
+    /* Stars inside header */
+    .stars-container { 
+        position: absolute; top:0; left:0; 
+        width:100%; height:100%; 
+        z-index:1; pointer-events:none; 
+        overflow:hidden;
+    }
+    .star {
+        position: absolute; 
+        background:white; 
+        border-radius:50%;
+        opacity:1.0; 
+        box-shadow:0 0 6px white;
+        animation: twinkle 3s infinite ease-in-out alternate;
+    }
+
+    @keyframes twinkle {
+        from { opacity: 0.2; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1.2); }
+    }
+    </style>
+</head>
+
+<body>
+    <header>
+        <!-- Logo -->
+        <div class="logo">
+            <img src="{{ url_for('static', filename='right_logo.png') }}" alt="Logo">
+            <span>Admin Panel</span>
+        </div>
+
+        <!-- Stars -->
+        <div class="stars-container"></div>
+
+        <!-- Nav -->
+        <nav>
+            <a href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('admin_orders') }}">Orders</a>
+            <a href="{{ url_for('admin_feedback') }}">Maoni ya Wateja</a>
+            <a href="{{ url_for('admin_logout') }}">Logout</a>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+    <script>
+    // Stars animation inside header only
+    function createStars(){
+        const container=document.querySelector('.stars-container');
+        container.innerHTML='';
+        const headerHeight=container.offsetHeight;
+        const numStars=300;
+        for(let i=0;i<numStars;i++){
+            const star=document.createElement('div'); 
+            star.classList.add('star');
+            const size=Math.random()*2+1;
+            star.style.width=`${size}px`; 
+            star.style.height=`${size}px`;
+            star.style.top=`${Math.random()*headerHeight}px`;
+            star.style.left=`${Math.random()*window.innerWidth}px`;
+            star.style.animationDuration=`${2+Math.random()*3}s`;
+            container.appendChild(star);
+        }
+    }
+    createStars(); 
+    window.addEventListener('resize',createStars);
+    </script>
+</body>
+</html>

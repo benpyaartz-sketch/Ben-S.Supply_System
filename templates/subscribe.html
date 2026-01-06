@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <title>Subscribe | BEN-S.SUPPLY</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #00111a, #00334d, #004080);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #fff;
+        }
+
+        .subscribe-box {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 25px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            text-align: center;
+            width: 350px;
+        }
+
+        .subscribe-box h2 {
+            margin-bottom: 15px;
+            font-size: 22px;
+            color: #ffcc00;
+        }
+
+        .subscribe-box p {
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: none;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        button {
+            background: #ffcc00;
+            color: #002244;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #ffaa00;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #ffcc00;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="subscribe-box">
+    <h2><i class="fas fa-envelope"></i> Jiunge na BEN-S.SUPPLY</h2>
+    <p>Weka barua pepe yako ili upate taarifa za bidhaa mpya moja kwa moja.</p>
+
+    <form method="POST" action="{{ url_for('subscribe') }}">
+        <input type="email" name="email" placeholder="Weka barua pepe yako..." required>
+        <button type="submit">Subscribe</button>
+    </form>
+
+    <a href="{{ url_for('home') }}" class="back-link"><i class="fas fa-arrow-left"></i> Rudi Nyumbani</a>
+</div>
+
+</body>
+</html>

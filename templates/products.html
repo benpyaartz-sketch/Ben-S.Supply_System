@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% block title %}Bidhaa Zetu{% endblock %}
+
+{% block content %}
+{# 🔹 LANGUAGE SWITCHER #}
+<div style="text-align:center; margin-bottom:15px;">
+    <a href="#" class="lang-btn" data-lang="sw" 
+       style="margin-right:10px; padding:5px 10px; background:#004080; color:white; border-radius:5px; text-decoration:none;">
+       Kiswahili
+    </a>
+    <a href="#" class="lang-btn" data-lang="en" 
+       style="padding:5px 10px; background:#28a745; color:white; border-radius:5px; text-decoration:none;">
+       English
+    </a>
+</div>
+
+<h1 class="highlight-title" style="text-align:center; margin-bottom:20px;">
+    <span class="text-sw">{% if lang == 'sw' %}Bidhaa Zetu{% else %}Bidhaa Zetu{% endif %}</span>
+    <span class="text-en" style="display:none;">Our Products</span>
+</h1>
+
+<div class="products-grid">
+    {% for product in products %}
+    <div class="product-card">
+        {% set images = [product[3], product[4], product[5], product[6], product[7]] %}
+
+        <!-- IMAGE SLIDER -->
+        <div class="image-slider" data-images="{{ images|join(',') }}">
+            {% for img in images if img %}
+            <img src="{{ url_for('static', filename='uploads/' + img) }}" alt="{{ product[1] }}">
+            {% endfor %}
+        </div>
+
+        <h3>{{ product[1] }}</h3>
+        <p class="price">Tsh {{ "%.2f"|format(product[2]) }}</p>
+
+        <button class="buy-btn" data-id="{{ product[0] }}" data-name="{{ product[1]|e }}">
+            <span class="text-sw">{% if lang == 'sw' %}Nunua{% else %}Nunua{% endif %}</span>
+            <span class="text-en" style="display:none;">Buy</span>
+        </button>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- ORDER MODAL -->
+<div id="orderModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2 id="form-title">
+        <span class="text-sw">Nunua Bidhaa</span>
+        <span class="text-en" style="display:none;">Buy Product</span>
+    </h2>
+    <form id="orderForm" method="POST" action="{{ url_for('submit_order') }}">
+      <input type="hidden" name="product_id" id="productInput">
+      <label class="text-sw">Jina kamili</label>
+      <label class="text-en" style="display:none;">Full Name</label>
+      <input name="name" required>
+      
+      <label class="text-sw">Simu</label>
+      <label class="text-en" style="display:none;">Phone</label>
+      <input name="phone" required>
+      
+      <label class="text-sw">Anwani</label>
+      <label class="text-en" style="display:none;">Address</label>
+      <input name="address" required>
+      
+      <label class="text-sw">Idadi</label>
+      <label class="text-en" style="display:none;">Quantity</label>
+      <input name="quantity" required>
+      
+      <input type="hidden" name="products" value="1">
+      <button class="btn" type="submit">
+        <span class="text-sw">Tuma Oda</span>
+        <span class="text-en" style="display:none;">Submit Order</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- IMAGE FULLSCREEN MODAL -->
+<div id="imageModal" class="modal">
+  <span class="close">&times;</span>
+  <img class="modal-img" src="">
+  <a class="prev">&#10094;</a>
+  <a class="next">&#10095;</a>
+</div>
+
+<script>
+// ---------------- LANGUAGE SWITCH ----------------
+let currentLang = "{{ lang if lang else 'sw' }}";
+const langBtns = document.querySelectorAll(".lang-btn");
+
+function switchLang(lang){
+    currentLang = lang;
+    document.querySelectorAll(".text-sw").forEach(el => el.style.display = (lang=='sw'?'inline':'none'));
+    document.querySelectorAll(".text-en").forEach(el => el.style.display = (lang=='en'?'inline':'none'));
+}
+
+langBtns.forEach(btn => {
+    btn.addEventListener("click", e => {
+        e.preventDefault();
+        switchLang(btn.dataset.lang);
+    });
+});
+
+// ---------------- Order Modal ----------------
+const orderModal = document.getElementById("orderModal");
+const productInput = document.getElementById("productInput");
+const formTitle = document.getElementById("form-title");
+
+function openOrderForm(productId, productName){
+    orderModal.style.display = "flex"; 
+    productInput.value = productId;
+    // Badilisha title moja kwa moja kulingana na lugha
+    if(currentLang=='sw') formTitle.querySelector('.text-sw').innerText = "Nunua " + productName;
+    else formTitle.querySelector('.text-en').innerText = "Buy " + productName;
+}
+function closeOrderForm(){ orderModal.style.display = "none"; }
+document.querySelector("#orderModal .close").addEventListener("click", closeOrderForm);
+orderModal.addEventListener("click", e => { if(e.target === orderModal) closeOrderForm(); });
+document.querySelectorAll(".buy-btn[data-id]").forEach(btn => {
+    btn.addEventListener("click", function(){
+        openOrderForm(this.dataset.id, this.dataset.name);
+    });
+});
+
+// ---------------- Fullscreen Image Modal ----------------
+const imageModal = document.getElementById('imageModal');
+const modalImg = imageModal.querySelector('.modal-img');
+const prevBtn = imageModal.querySelector('.prev');
+const nextBtn = imageModal.querySelector('.next');
+let currentImages = [];
+let currentIndex = 0;
+let isAnimating = false;
+
+document.querySelectorAll('.image-slider').forEach(slider => {
+    const imgs = slider.querySelectorAll('img');
+    const imagesList = slider.dataset.images.split(',').filter(x => x);
+
+    imgs.forEach((img, i) => {
+        img.addEventListener('click', () => {
+            currentImages = imagesList.map(x => "{{ url_for('static', filename='uploads/') }}" + x);
+            currentIndex = i;
+
+            imageModal.style.display = 'flex';
+            modalImg.style.opacity = 0;
+            modalImg.src = currentImages[currentIndex];
+            modalImg.onload = () => { modalImg.style.opacity = 1; };
+        });
+    });
+});
+
+// Close modal
+imageModal.querySelector('.close').addEventListener('click', () => { imageModal.style.display = 'none'; });
+imageModal.addEventListener('click', e => { if(e.target === imageModal) imageModal.style.display = 'none'; });
+
+// Prev/Next
+function showImage(index) {
+    if (isAnimating) return;
+    isAnimating = true;
+    modalImg.style.opacity = 0;
+    setTimeout(() => {
+        currentIndex = (index + currentImages.length) % currentImages.length;
+        modalImg.src = currentImages[currentIndex];
+        modalImg.onload = () => {
+            modalImg.style.opacity = 1;
+            setTimeout(() => { isAnimating = false; }, 200);
+        };
+    }, 150);
+}
+prevBtn.addEventListener('click', () => showImage(currentIndex - 1));
+nextBtn.addEventListener('click', () => showImage(currentIndex + 1));
+</script>
+
+<style>
+.products-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; }
+.product-card { background:#fff; padding:15px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); text-align:center; }
+.image-slider { display:flex; overflow-x:auto; gap:10px; cursor:grab; margin-bottom:10px; }
+.image-slider img { flex-shrink:0; max-height:200px; border-radius:10px; transition: transform 0.2s; }
+.image-slider img:hover { transform:scale(1.05); }
+
+.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); align-items:center; justify-content:center; z-index:9999; }
+.modal-content { background:white; padding:20px; border-radius:10px; max-width:400px; width:90%; position:relative; }
+.close { position:absolute; right:15px; top:10px; font-size:25px; cursor:pointer; color:white; }
+.buy-btn { background:#004080; color:white; padding:10px 15px; border:none; border-radius:8px; cursor:pointer; margin-top:10px; transition:0.3s; }
+.buy-btn:hover { background:#ffcc00; color:#000; }
+
+.modal-img { max-width:90%; max-height:90%; border-radius:10px; transition: opacity 0.2s ease; }
+.prev, .next { position:absolute; top:50%; color:white; font-size:40px; font-weight:bold; cursor:pointer; user-select:none; padding:0 15px; transform:translateY(-50%); }
+.prev { left:0; } .next { right:0; }
+.prev:hover, .next:hover { color:#ffcc00; }
+
+.highlight-title {
+    background: blue;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    display: inline-block;
+}
+</style>
+{% endblock %}

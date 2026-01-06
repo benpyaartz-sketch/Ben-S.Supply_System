@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}BEN-S.SUPPLY{% endblock %}
+{% block content %}
+<div style="max-width:900px; margin:auto; padding:30px; background:#fff; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+    <h1 style="text-align:center; color:#004080; margin-bottom:20px;">Kuhusu BEN-S.SUPPLY</h1>
+    <p style="font-size:18px; line-height:1.8; text-align:justify; color:#333;">
+        <strong>BEN-S.SUPPLY</strong> ni kampuni inayoongoza katika usambazaji wa <em>stationery</em> na vifaa vya matumizi ya kila siku kwa
+        mashule, vyuo, maofisi, taasisi, na pia kwa matumizi binafsi. Tunajivunia kuwa sehemu ya maendeleo ya elimu na biashara
+        kupitia bidhaa bora zinazorahisisha kazi na kuongeza ufanisi.
+    </p>
+    
+    <p style="font-size:18px; line-height:1.8; text-align:justify; color:#333;">
+        Tumejikita kuhakikisha <strong>ubora, uaminifu, na huduma bora</strong> kwa kila mteja wetu. Kwa bei nafuu na upatikanaji wa bidhaa
+        mbalimbali, tunaleta suluhisho la haraka na la uhakika kwa mahitaji yako ya kila siku ya vifaa vya kuandikia, karatasi,
+        na vifaa vya ofisini.
+    </p>
+    
+    <p style="font-size:18px; line-height:1.8; text-align:justify; color:#333;">
+        Kwa uzoefu wa miaka mingi katika sekta hii, timu yetu imejenga imani kwa wateja kwa kuwapatia huduma bora na bidhaa
+        zinazokidhi viwango vya juu. Lengo letu kuu ni kuhakikisha mteja anapata <strong>thamani ya fedha yake</strong> na huduma
+        ya haraka bila usumbufu.
+    </p>
+    
+    <h2 style="text-align:center; margin-top:30px; color:#004080;">Tunachotoa</h2>
+    <ul style="font-size:17px; line-height:1.8; color:#333; max-width:700px; margin:20px auto;">
+        <li>Vifaa vya kuandikia (daftari, vitabu, kalamu, penseli, rula, n.k.)</li>
+        <li>Bidhaa za karatasi na uchapishaji (A4, A3, photocopy papers, na zaidi)</li>
+        <li>Vifaa vya maofisini (folders, files, staplers, printers supplies)</li>
+        <li>Huduma ya usambazaji wa haraka kwa shule na taasisi</li>
+        <li>Huduma ya kuagiza bidhaa maalum kulingana na mahitaji ya mteja</li>
+    </ul>
+    
+    <div style="text-align:center; margin-top:40px;">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="BEN-S.SUPPLY" style="max-width:200px; margin-bottom:15px;">
+        <p style="font-size:16px; color:#555; font-style:italic;">
+            "Ubora wetu ni fahari yako – pamoja tuendeleze elimu na biashara kwa ubora."
+        </p>
+    </div>
+</div>
+{% endblock %}

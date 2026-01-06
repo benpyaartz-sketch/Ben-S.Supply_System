@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+{% block title %}BEN-S.SUPPLY{% endblock %}
+
+{% block content %}
+<!-- Search Form -->
+<form method="GET" action="{{ url_for('home') }}" style="text-align:center; margin-bottom:10px;">
+    <input type="text" name="q" placeholder="Tafuta bidhaa..." 
+           style="padding:8px; width:50%; max-width:300px; border-radius:6px; border:1px solid #aaa;"
+           value="{{ query }}">
+    <button type="submit" 
+            style="padding:8px 14px; border:none; border-radius:6px; background:#004080; color:white; cursor:pointer;">
+        Tafuta
+    </button>
+</form>
+
+<!-- Mini Cart -->
+<div style="text-align:right; margin-bottom:10px;">
+    <a href="{{ url_for('cart') }}" style="padding:8px 5px; background:#28a745; color:white; border-radius:6px; text-decoration:none;">
+        Kikapu ({{ session.get('cart_count',0) }})
+    </a>
+</div>
+
+<div class="products-grid">
+    {% for product in products %}
+    <div class="product-card">
+        {% set images = [product['image1'], product['image2'], product['image3'], product['image4'], product['image5']] %}
+
+        <!-- IMAGE BOX NA DOTS -->
+        <div class="image-box" data-images="{{ images|join(',') }}">
+            {% if images[0] %}
+            <img src="{{ url_for('static', filename='uploads/' + images[0]) }}" alt="{{ product['name'] }}">
+            <div class="dots">
+                {% for img in images if img %}
+                <span class="dot{% if loop.index0 == 0 %} active{% endif %}"></span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <h3>{{ product['name'] }}</h3>
+        <p class="price">Tsh {{ "{:,.2f}".format(product['price']) }}</p>
+
+        <!-- Add to Cart Form -->
+        <form method="POST" action="{{ url_for('add_to_cart') }}">
+            <input type="hidden" name="product_id" value="{{ product['id'] }}">
+            <input type="number" name="quantity" value="1" min="1" style="width:50px; margin-right:5px;">
+            <button type="submit" class="buy-btn">Ongeza kwenye Kikapu</button>
+        </form>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- IMAGE FULLSCREEN MODAL -->
+<div id="imageModal" class="modal">
+  <span class="close" id="imageModalClose">&times;</span>
+  <div class="modal-body">
+    <img class="modal-img" src="">
+    <div class="thumbs"></div>
+    <a class="prev">&#10094;</a>
+    <a class="next">&#10095;</a>
+  </div>
+</div>
+
+<script>
+// ---------------- Fullscreen Image Modal ----------------
+const imageModal = document.getElementById('imageModal');
+const modalImg = imageModal.querySelector('.modal-img');
+const thumbsContainer = imageModal.querySelector('.thumbs');
+const prevBtn = imageModal.querySelector('.prev');
+const nextBtn = imageModal.querySelector('.next');
+const imageModalClose = document.getElementById('imageModalClose');
+
+let currentImages = [];
+let currentIndex = 0;
+
+document.querySelectorAll('.image-box').forEach(box => {
+    const img = box.querySelector('img');
+    const dots = box.querySelectorAll('.dot');
+    const imagesList = box.dataset.images.split(',').filter(x => x);
+
+    let index = 0;
+    let interval;
+
+    function startSlide() {
+        interval = setInterval(() => {
+            index = (index + 1) % imagesList.length;
+            img.src = "{{ url_for('static', filename='uploads/') }}" + imagesList[index];
+            dots.forEach(d => d.classList.remove('active'));
+            dots[index].classList.add('active');
+        }, 3000);
+    }
+
+    function stopSlide() {
+        clearInterval(interval);
+    }
+
+document.querySelectorAll('.image-box').forEach(box => {
+    let startX = 0;
+    let endX = 0;
+    const img = box.querySelector('img');
+    const dots = box.querySelectorAll('.dot');
+    const imagesList = box.dataset.images.split(',').filter(x => x);
+    let index = 0;
+    let interval;
+
+    function startSlide() {
+        interval = setInterval(() => {
+            index = (index + 1) % imagesList.length;
+            img.src = "{{ url_for('static', filename='uploads/') }}" + imagesList[index];
+            dots.forEach(d => d.classList.remove('active'));
+            dots[index].classList.add('active');
+        }, 3000);
+    }
+
+    function stopSlide() {
+        clearInterval(interval);
+    }
+
+    startSlide();
+
+    // Pause on hover
+    box.addEventListener('mouseenter', stopSlide);
+    box.addEventListener('mouseleave', startSlide);
+
+    // Dot click
+    dots.forEach((dot, i) => {
+        dot.addEventListener('click', () => {
+            index = i;
+            img.src = "{{ url_for('static', filename='uploads/') }}" + imagesList[index];
+            dots.forEach(d => d.classList.remove('active'));
+            dot.classList.add('active');
+        });
+    });
+
+    // Touch events for swipe
+    box.addEventListener('touchstart', e => {
+        stopSlide();
+        startX = e.touches[0].clientX;
+    });
+    box.addEventListener('touchmove', e => {
+        endX = e.touches[0].clientX;
+    });
+    box.addEventListener('touchend', e => {
+        const diff = endX - startX;
+        if (diff > 50) { // swipe right
+            index = (index - 1 + imagesList.length) % imagesList.length;
+        } else if (diff < -50) { // swipe left
+            index = (index + 1) % imagesList.length;
+        }
+        img.src = "{{ url_for('static', filename='uploads/') }}" + imagesList[index];
+        dots.forEach(d => d.classList.remove('active'));
+        dots[index].classList.add('active');
+        startSlide();
+    });
+
+    // Click to open modal
+    if (img) {
+        img.addEventListener('click', () => {
+            currentImages = imagesList.map(x => "{{ url_for('static', filename='uploads/') }}" + x);
+            currentIndex = 0;
+            openModal();
+        });
+    }
+});
+
+    // Start slideshow
+    startSlide();
+
+    // Dot click
+    dots.forEach((dot, i) => {
+        dot.addEventListener('click', () => {
+            index = i;
+            img.src = "{{ url_for('static', filename='uploads/') }}" + imagesList[index];
+            dots.forEach(d => d.classList.remove('active'));
+            dot.classList.add('active');
+        });
+    });
+
+    // Pause on hover
+    box.addEventListener('mouseenter', stopSlide);
+    box.addEventListener('mouseleave', startSlide);
+
+    // Click to open modal
+    if (img) {
+        img.addEventListener('click', () => {
+            currentImages = imagesList.map(x => "{{ url_for('static', filename='uploads/') }}" + x);
+            currentIndex = 0;
+            openModal();
+        });
+    }
+});
+
+function openModal() {
+    imageModal.style.display = 'flex';
+    updateModalImage();
+
+    // Thumbnails
+    thumbsContainer.innerHTML = "";
+    currentImages.forEach((src, i) => {
+        const thumb = document.createElement('img');
+        thumb.src = src;
+        thumb.className = "thumb" + (i === currentIndex ? " active" : "");
+        thumb.addEventListener('click', () => {
+            currentIndex = i;
+            updateModalImage();
+        });
+        thumbsContainer.appendChild(thumb);
+    });
+}
+
+function updateModalImage() {
+    modalImg.style.opacity = 0;
+    modalImg.src = currentImages[currentIndex];
+    modalImg.onload = () => { modalImg.style.opacity = 1; };
+    thumbsContainer.querySelectorAll('img').forEach((t, i) => {
+        t.classList.toggle('active', i === currentIndex);
+    });
+}
+
+// Modal Prev/Next
+prevBtn.addEventListener('click', () => {
+    currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length;
+    updateModalImage();
+});
+nextBtn.addEventListener('click', () => {
+    currentIndex = (currentIndex + 1) % currentImages.length;
+    updateModalImage();
+});
+
+// Close modal
+imageModalClose.addEventListener('click', () => { imageModal.style.display = 'none'; });
+imageModal.addEventListener('click', e => { if(e.target === imageModal) imageModal.style.display = 'none'; });
+</script>
+
+<style>
+/* Extra for modal thumbnails */
+#imageModal .modal-body { text-align:center; max-width:90%; }
+#imageModal .modal-img { max-width:90%; max-height:80vh; border-radius:10px; margin-bottom:10px; transition: opacity 0.3s ease; }
+
+#imageModal .thumbs { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:10px; }
+#imageModal .thumbs img { width:60px; height:60px; object-fit:cover; border-radius:5px; cursor:pointer; opacity:0.6; transition:0.2s; }
+#imageModal .thumbs img:hover { opacity:1; transform:scale(1.05); }
+#imageModal .thumbs img.active { border:2px solid #ffcc00; opacity:1; }
+
+/* product cards */
+.products-grid { 
+    display:grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap:25px; 
+}
+.product-card { background:#fff; padding:20px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1); text-align:center; transition:0.3s; }
+.product-card:hover { transform: translateY(-3px); box-shadow:0 6px 15px rgba(0,0,0,0.15); }
+
+.image-box { position: relative; width:100%; height:200px; display:flex; align-items:center; justify-content:center; margin-bottom:15px; }
+.image-box img { max-height:180px; max-width:100%; border-radius:8px; cursor:pointer; transition: transform 0.2s; }
+.image-box img:hover { transform:scale(1.05); }
+
+.image-box .dots {
+    position: absolute;
+    bottom: 8px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    gap: 6px;
+}
+.image-box .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.6);
+    cursor: pointer;
+    transition: 0.2s;
+}
+.image-box .dot.active { background: #ffcc00; }
+
+.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); align-items:center; justify-content:center; z-index:9999; }
+#imageModal .prev, #imageModal .next { position:absolute; top:50%; color:white; font-size:40px; font-weight:bold; cursor:pointer; user-select:none; padding:0 15px; transform:translateY(-50%); }
+#imageModal .prev { left:0; } #imageModal .next { right:0; }
+#imageModal .prev:hover, #imageModal .next:hover { color:#ffcc00; }
+#imageModal .close { position:absolute; top:15px; right:20px; font-size:35px; font-weight:bold; color:white; cursor:pointer; z-index:10000; }
+#imageModal .close:hover { color:#ffcc00; }
+
+@media(max-width:900px){
+    .products-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media(max-width:500px){
+    .products-grid { grid-template-columns: 1fr; }
+    .image-box { height:150px; }
+    .image-box img { max-height:140px; }
+}
+
+</style>
+
+{% endblock %}

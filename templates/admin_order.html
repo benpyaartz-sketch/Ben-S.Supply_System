@@ -1,0 +1,138 @@
+{% extends "base_admin.html" %}
+{% block title %}Orders – BEN-S.SUPPLY{% endblock %}
+
+{% block content %}
+<hr style="margin:30px 0;">
+<h1 class="highlight-title" style="text-align:center;">Oda Zote</h1>
+
+<div style="overflow-x:auto;">
+<table class="orders-table">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Mteja</th>
+            <th>Simu</th>
+            <th>Eneo</th>
+            <th>Tarehe</th>
+            <th>Status</th>
+            <th>Items</th>
+            <th>Jumla</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+{% for order in orders %}
+<tr>
+    <td>{{ order["id"] }}</td>
+    <td>{{ order["customer_name"] or "N/A" }}</td>
+    <td>{{ order["phone"] or "N/A" }}</td>
+    <td>{{ order["location"] or "N/A" }}</td>
+    <td>
+        {% if order["order_date"] %}
+            {{ order["order_date"]|datetimeformat }}
+        {% else %}
+            N/A
+        {% endif %}
+    </td>
+    <td>
+        {% set st = order["status"]|lower %}
+        {% if st == "pending" %}
+            <span class="status pending">Pending</span>
+        {% elif st == "completed" %}
+            <span class="status completed">Completed</span>
+        {% elif st == "cancelled" %}
+            <span class="status cancelled">Cancelled</span>
+        {% else %}
+            <span class="status other">{{ order["status"] or "N/A" }}</span>
+        {% endif %}
+    </td>
+    <td>{{ order["items_count"] or 0 }}</td>
+    <td>{{ order["total"] | currency_tzs }}</td>
+    <td>
+        <a href="{{ url_for('admin_order_view', order_id=order['id']) }}" class="btn-view">Angalia</a>
+    </td>
+</tr>
+<tr class="order-items-row">
+    <td colspan="9">
+        <strong>Bidhaa:</strong>
+        <ul>
+        {% for item in order["items"] %}
+            <li>{{ item["product_name"] }} - Qty: {{ item["quantity"] }} - {{ item["price"] | currency_tzs }}</li>
+        {% else %}
+            <li>Hakuna bidhaa</li>
+        {% endfor %}
+        </ul>
+    </td>
+</tr>
+{% else %}
+<tr>
+    <td colspan="9" style="text-align:center;">Hakuna oda zilizopatikana</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+
+<style>
+/* Highlight title */
+.highlight-title {
+    background: #007bff;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 6px;
+    display: inline-block;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+    margin-bottom: 20px;
+}
+
+/* Table */
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(85, 6, 6, 0.1);
+    font-size: 14px;
+}
+.orders-table th, .orders-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+.orders-table thead {
+    background: #007bff;
+    color: white;
+}
+.orders-table tbody tr:hover {
+    background: #f1f1f1;
+    transition: 0.2s;
+}
+
+/* Row ya Bidhaa */
+.orders-table .order-items-row td {
+    background: #5f0808;
+    padding: 10px 15px;
+}
+
+/* Status Badges */
+.status {
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 12px;
+    text-transform: capitalize;
+}
+.status.pending { background: #ffc107; color: #000; }
+.status.completed { background: #28a745; color: #fff; }
+.status.cancelled { background: #dc3545; color: #fff; }
+.status.other { background: #6c757d; color: #fff; }
+
+/* Buttons */
+.btn-view {
+    background: #17a2b8;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    text-decoration: none;
+}
+.btn-view:hover { background: #138496; }
+</style>
+{% endblock %}

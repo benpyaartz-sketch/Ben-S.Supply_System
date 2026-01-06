@@ -1,0 +1,83 @@
+{% extends "base_admin.html" %}
+{% block title %}Oda ya Mteja{% endblock %}
+
+{% block content %}
+<h1 class="highlight-title" style="text-align:center;">Oda ya Mteja</h1>
+
+<div style="max-width:800px; margin:auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+
+    <!-- Maelezo ya Mteja -->
+    <div style="margin-bottom:20px;">
+        <p><strong>Jina:</strong> {{ order.customer_name }}</p>
+        <p><strong>Simu:</strong> {{ order.phone }}</p>
+        <p><strong>Eneo:</strong> {{ order.location }}</p>
+        <p><strong>Tarehe:</strong> {{ order.order_date|default("Hakuna Tarehe")|datetimeformat }}</p>
+        <p><strong>Status:</strong> {{ order.status }}</p>
+    </div>
+
+    <!-- Items kwenye Order -->
+    <h3>Items kwenye Order</h3>
+    {% if items %}
+    <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse; text-align:center;">
+        <thead style="background-color:#004080; color:white;">
+            <tr>
+                <th>Bidhaa</th>
+                <th>Idadi</th>
+                <th>Bei</th>
+                <th>Jumla</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.product_name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.price | currency_tzs }}</td>
+                <td>{{ (item.price * item.quantity) | currency_tzs }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p style="text-align:right; font-weight:bold; margin-top:10px;">
+        Jumla ya Order: {{ order.total | currency_tzs }}
+    </p>
+    {% else %}
+    <p style="text-align:center; font-weight:bold; margin-top:20px;">Hakuna bidhaa kwenye order hii.</p>
+    {% endif %}
+
+    <!-- Badilisha Status -->
+    <h3>Badilisha Status:</h3>
+    <form method="POST" action="{{ url_for('admin_update_order_status', order_id=order.id) }}" style="margin-bottom:20px;">
+        <select name="status" style="padding:5px; border-radius:5px;">
+            <option value="Pending" {% if order.status=="Pending" %}selected{% endif %}>Pending</option>
+            <option value="Processing" {% if order.status=="Processing" %}selected{% endif %}>Processing</option>
+            <option value="Completed" {% if order.status=="Completed" %}selected{% endif %}>Completed</option>
+            <option value="Cancelled" {% if order.status=="Cancelled" %}selected{% endif %}>Cancelled</option>
+        </select>
+        <button type="submit" style="padding:5px 10px; margin-left:5px; background:#004080; color:white; border:none; border-radius:5px; cursor:pointer;">
+            Update
+        </button>
+    </form>
+
+    <a href="{{ url_for('admin_orders') }}" style="display:inline-block; margin-top:10px; text-decoration:none; color:#004080;">⬅ Rudi kwenye Oda Zote</a>
+</div>
+
+<style>
+.highlight-title {
+    background: linear-gradient(to right, #00111a, #00334d, #004080);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 6px;
+    display: inline-block;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+}
+table th, table td { padding:10px; text-align:center; }
+table tr:hover { background:#f1f1f1; }
+
+/* Flash messages (ikiwa zinatumika) */
+.flash.success { background:#d4edda; padding:10px; margin:10px 0; border-radius:5px; color:#155724; }
+.flash.error { background:#f8d7da; padding:10px; margin:10px 0; border-radius:5px; color:#721c24; }
+.flash.warning { background:#fff3cd; padding:10px; margin:10px 0; border-radius:5px; color:#856404; }
+</style>
+{% endblock %}

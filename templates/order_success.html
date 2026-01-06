@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Oda Imetumwa{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 60px auto; padding: 40px; background: #fff; border-radius: 12px; box-shadow: 0 12px 25px rgba(0,0,0,0.15); text-align:center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    
+    <h2 style="color:#28a745; margin-bottom:20px; font-size:28px;">✔ Oda Yako Imetumwa!</h2>
+    
+    <p style="font-size:16px; color:#555; margin-bottom:30px; line-height:1.6;">
+        Asante {{ customer_name }} kwa kufanya manunuzi. Tutaarakisha oda yako na tutakutumia taarifa mara itakapofanyiwa kazi.
+    </p>
+
+    <a href="{{ url_for('home') }}" 
+       style="display:inline-block; padding:14px 30px; background:#004080; color:white; border-radius:10px; text-decoration:none; font-weight:bold; font-size:16px; box-shadow:0 4px 8px rgba(0,0,0,0.2); transition:0.3s;">
+       Rudi Kwenye Bidhaa
+    </a>
+</div>
+{% endblock %}
