@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 
 # ------------------ SETUP ------------------
 app = Flask(__name__, template_folder="templates")
-app.secret_key = "ben_secret_2025"
+app.secret_key = os.environ.get("SECRET_KEY", secrets.token_hex(32))
 app.config["UPLOAD_FOLDER"] = "static/uploads"
 
 if not os.path.exists(app.config["UPLOAD_FOLDER"]):
@@ -104,12 +104,12 @@ def init_db():
         conn.commit()
 
 # ------------------ EMAIL SETUP ------------------
-EMAIL_ADDRESS = "benpyaartz@gmail.com"
-EMAIL_PASSWORD = "fqedpfwwbktpqbkw"
+EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS")
+EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 
 def send_reset_email(to_email, token):
     subject = "Password Reset Link"
-    reset_link = f"http://127.0.0.1:5000/reset_password/{token}"
+    reset_link = "https://ben-s-supply-system.onrender.com/{token}"
     body = f"Tafadhali bonyeza link hii kubadilisha password yako:\n\n{reset_link}"
     msg = MIMEText(body)
     msg['Subject'] = subject
