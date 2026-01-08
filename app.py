@@ -384,7 +384,7 @@ def admin_dashboard():
                 c.row_factory = sqlite3.Row
                 subscribers = c.execute("SELECT email FROM subscribers").fetchall()
 
-            product_url = f"http://127.0.0.1:5000/"  # replace na link ya product page kama unayo
+            product_url = "https://ben-s-supply-system.onrender.com"  # replace na link ya product page kama unayo
             product_image = images[0] if images[0] else ""
 
             for sub in subscribers:
@@ -397,7 +397,7 @@ def admin_dashboard():
     <p>Tumeongeza bidhaa mpya kwenye <strong>BEN-S.SUPPLY</strong>:</p>
     <p><strong>{name}</strong></p>
     <p>Bei: {price:,.2f} TZS</p>
-    {'<img src="http://127.0.0.1:5000/static/uploads/'+product_image+'" alt="Bidhaa" width="200">' if product_image else ''}
+    {'<img src="https://ben-s-supply-system.onrender.com'+product_image+'" alt="Bidhaa" width="200">' if product_image else ''}
     <p><a href="{product_url}">Bonyeza hapa kuona bidhaa</a></p>
   </body>
 </html>
