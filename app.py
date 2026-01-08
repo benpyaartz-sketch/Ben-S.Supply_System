@@ -689,41 +689,9 @@ def subscribe():
             flash("Email hii tayari imesajiliwa.", "warning")
     return redirect(url_for("home"))
 
-# ------------------ RUN ------------------
-def init_db():
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
 
-    # Table ya admin
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS admin (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE,
-            password TEXT
-        )
-    """)
-
-    # Table ya feedback
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS feedback (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            message TEXT,
-            created_at TEXT
-        )
-    """)
-
-    # Table ya subscribers
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS subscribers (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE
-        )
-    """)
-
-    conn.commit()
-    conn.close()
 # ------------------ RUN ------------------
 if __name__ == "__main__":
     init_db()
     migrate_feedback_created_at()
+    app.run(debug=True)
