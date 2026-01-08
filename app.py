@@ -109,7 +109,7 @@ EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 
 def send_reset_email(to_email, token):
     subject = "Password Reset Link"
-    reset_link = "https://ben-s-supply-system.onrender.com/{token}"
+    reset_link = reset_link = f"https://ben-s-supply-system.onrender.com/reset_password/{token}"
     body = f"Tafadhali bonyeza link hii kubadilisha password yako:\n\n{reset_link}"
     msg = MIMEText(body)
     msg['Subject'] = subject
@@ -169,21 +169,26 @@ def reset_password(token):
 
 # ------------------ ADMIN LOGIN ------------------
 @app.route("/admin", methods=["GET", "POST"])
+@app.route("/login", methods=["GET", "POST"])
+@app.route("/admin_login", methods=["GET", "POST"])
 def admin_login():
     error = None
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
+
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute("SELECT * FROM admin WHERE username=?", (username,))
         user = cur.fetchone()
         conn.close()
+
         if user and check_password_hash(user["password"], password):
             session["admin"] = username
             return redirect(url_for("admin_dashboard"))
         else:
             error = "Username au Password si sahihi."
+
     return render_template("login.html", error=error)
 
 # ------------------ CART HELPERS ------------------
@@ -556,9 +561,6 @@ def admin_logout():
     return redirect(url_for("admin_login"))
 
 # ------------------ FEEDBACK ------------------
-from datetime import datetime
-
-# ------------------ FEEDBACK ------------------
 @app.route("/feedback", methods=["POST"])
 def feedback():
     name = request.form.get("name")
@@ -688,7 +690,40 @@ def subscribe():
     return redirect(url_for("home"))
 
 # ------------------ RUN ------------------
+def init_db():
+    conn = sqlite3.connect(DB_FILE)
+    cur = conn.cursor()
+
+    # Table ya admin
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS admin (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            password TEXT
+        )
+    """)
+
+    # Table ya feedback
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS feedback (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            message TEXT,
+            created_at TEXT
+        )
+    """)
+
+    # Table ya subscribers
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS subscribers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT UNIQUE
+        )
+    """)
+
+    conn.commit()
+    conn.close()
+# ------------------ RUN ------------------
 if __name__ == "__main__":
-    init_db()                     # Hakikisha database na tables zipo
-    migrate_feedback_created_at() # Fanya migration ya created_at
-    app.run(debug=True)
+    init_db()
+    migrate_feedback_created_at()
