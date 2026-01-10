@@ -30,7 +30,7 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: url("{{ url_for('static', filename='images/background2.png') }}") no-repeat center center fixed;
+    background: url("{{ url_for('static', filename='images/background2.png') }}") no-repeat center center;
     background-size: cover;
     padding-top: 60px;
 }
@@ -78,6 +78,19 @@ main { flex:1; max-width:1000px; margin:20px auto; padding:0 15px; }
 footer { text-align:center; padding:10px 0; background:#002244; color:white; font-size:14px; }
 
 /* ADMIN LINK HIDE */
+@media (max-width: 768px) {
+    body {
+        background-attachment: scroll;
+    }
+}
+@media (max-width: 600px) {
+    .stars-container {
+        display: none;
+    }
+}
+
+
+    
 {% if not session.admin_logged_in %}
 nav a[href*="admin"] { display:none; }
 {% endif %}
@@ -132,6 +145,13 @@ nav a[href*="admin"] { display:none; }
         padding: 8px 12px;
     }
 }
+    @media (max-width: 600px) {
+    a[href*="wa.me"] {
+        font-size: 22px;
+        padding: 5px;
+    }
+}
+
 </style>
 </head>
 <body>
@@ -193,24 +213,33 @@ nav a[href*="admin"] { display:none; }
 </a>
 
 <script>
-    // Stars animation inside header only
-    function createStars(){
-        const container=document.querySelector('.stars-container');
-        container.innerHTML='';
-        const headerHeight=container.offsetHeight;
-        const numStars=50;
-        for(let i=0;i<numStars;i++){
-            const star=document.createElement('div'); 
-            star.classList.add('star');
-            const size=Math.random()*2+1;
-            star.style.width=`${size}px`; 
-            star.style.height=`${size}px`;
-            star.style.top=`${Math.random()*headerHeight}px`;
-            star.style.left=`${Math.random()*window.innerWidth}px`;
-            star.style.animationDuration=`${2+Math.random()*3}s`;
-            container.appendChild(star);
-        }
+function createStars(){
+    const container = document.querySelector('.stars-container');
+    if (!container || window.innerWidth <= 600) return;
+
+    container.innerHTML = '';
+    const headerHeight = container.offsetHeight;
+
+    const isMobile = window.innerWidth <= 768;
+    const numStars = isMobile ? 80 : 300;
+
+    for(let i = 0; i < numStars; i++){
+        const star = document.createElement('div');
+        star.classList.add('star');
+        const size = Math.random() * 2 + 1;
+        star.style.width = `${size}px`;
+        star.style.height = `${size}px`;
+        star.style.top = `${Math.random() * headerHeight}px`;
+        star.style.left = `${Math.random() * window.innerWidth}px`;
+        star.style.animationDuration = `${2 + Math.random() * 3}s`;
+        container.appendChild(star);
     }
-    createStars(); 
-    window.addEventListener('resize',createStars);
-    </script>
+}
+
+createStars();
+
+window.addEventListener('resize', () => {
+    clearTimeout(window.starResizeTimer);
+    window.starResizeTimer = setTimeout(createStars, 300);
+});
+</script>
