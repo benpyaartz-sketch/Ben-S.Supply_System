@@ -72,6 +72,58 @@ footer { text-align:center; padding:10px 0; background:#002244; color:white; fon
 {% if not session.admin_logged_in %}
 nav a[href*="admin"] { display:none; }
 {% endif %}
+
+@media (max-width: 768px) {
+
+    header {
+        height: auto;
+        padding: 5px 10px;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .logo-left {
+        flex-direction: column;
+        text-align: center;
+        gap: 5px;
+    }
+
+    .logo-left img {
+        height: 45px;
+    }
+
+    .logo-left .small-name {
+        font-size: 14px;
+        line-height: 1.3;
+    }
+
+    nav {
+        margin-top: 5px;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    nav a {
+        font-size: 14px;
+    }
+
+    main {
+        margin-top: 100px;
+        padding: 0 10px;
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    button {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+}
+
 </style>
 </head>
 <body>
