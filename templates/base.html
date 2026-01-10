@@ -39,63 +39,95 @@ body {
 header {
     position: fixed;
     top: 0; left: 0;
-    width: 100%; height: 60px;
+    width: 100%;
+    height: 60px;
     background: linear-gradient(to bottom, #00111a, #00334d, #004080);
     color: #fff;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 5px 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     z-index: 3000;
 }
 
-/* Stars */
-.stars-container { position: absolute; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+/* STARS */
+.stars-container {
+    position: absolute;
+    top:0; left:0;
+    width:100%; height:100%;
+    z-index:0;
+    pointer-events:none;
+    overflow:hidden;
+}
+
 .star {
-    position: absolute; background:white; border-radius:50%;
-    opacity:0.8; box-shadow:0 0 6px white;
+    position: absolute;
+    background:white;
+    border-radius:50%;
+    opacity:0.8;
+    box-shadow:0 0 6px white;
     animation: twinkle 3s infinite ease-in-out alternate;
 }
+
 @keyframes twinkle {
-    0%{opacity:0.2;transform:scale(0.8);}50%{opacity:1;transform:scale(1.3);}100%{opacity:0.3;transform:scale(1);}
+    0%{opacity:0.2;transform:scale(0.8);}
+    50%{opacity:1;transform:scale(1.3);}
+    100%{opacity:0.3;transform:scale(1);}
 }
 
 /* LOGO */
-.logo-left { display:flex; align-items:center; gap:10px; z-index:2; }
+.logo-left {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    z-index:2;
+}
 .logo-left img { height:70px; }
-.logo-left .small-name { font-size:20px; font-weight:bold; color:#fff; }
+.logo-left .small-name {
+    font-size:20px;
+    font-weight:bold;
+    color:#fff;
+}
 
 /* NAV */
-nav { display:flex; gap:15px; align-items:center; z-index:2; }
-nav a { color:white; text-decoration:none; font-weight:bold; transition:color 0.3s; }
+nav {
+    display:flex;
+    gap:15px;
+    align-items:center;
+    z-index:2;
+}
+nav a {
+    color:white;
+    text-decoration:none;
+    font-weight:bold;
+}
 nav a:hover { color:#ffcc00; }
 
 /* MAIN */
-main { flex:1; max-width:1000px; margin:20px auto; padding:0 15px; }
+main {
+    flex:1;
+    max-width:1000px;
+    margin:20px auto;
+    padding:0 15px;
+}
 
 /* FOOTER */
-footer { text-align:center; padding:10px 0; background:#002244; color:white; font-size:14px; }
-
-/* ADMIN LINK HIDE */
-@media (max-width: 768px) {
-    body {
-        background-attachment: scroll;
-    }
-}
-@media (max-width: 600px) {
-    .stars-container {
-        display: none;
-    }
+footer {
+    text-align:center;
+    padding:10px 0;
+    background:#002244;
+    color:white;
+    font-size:14px;
 }
 
-
-    
+/* HIDE ADMIN LINK */
 {% if not session.admin_logged_in %}
 nav a[href*="admin"] { display:none; }
 {% endif %}
 
+/* MOBILE */
 @media (max-width: 768px) {
+    body { background-attachment: scroll; }
 
     header {
         height: auto;
@@ -104,54 +136,25 @@ nav a[href*="admin"] { display:none; }
         align-items: center;
     }
 
-    .logo-left {
-        flex-direction: column;
-        text-align: center;
-        gap: 5px;
-    }
-
-    .logo-left img {
-        height: 45px;
-    }
-
-    .logo-left .small-name {
-        font-size: 14px;
-        line-height: 1.3;
-    }
+    .logo-left img { height: 45px; }
+    .logo-left .small-name { font-size: 14px; }
 
     nav {
-        margin-top: 5px;
         flex-wrap: wrap;
         justify-content: center;
         gap: 10px;
     }
 
-    nav a {
-        font-size: 14px;
-    }
-
-    main {
-        margin-top: 100px;
-        padding: 0 10px;
-    }
-
-    img {
-        max-width: 100%;
-        height: auto;
-    }
-
-    button {
-        font-size: 14px;
-        padding: 8px 12px;
-    }
+    nav a { font-size: 14px; }
+    main { margin-top: 100px; }
 }
-    @media (max-width: 600px) {
+
+@media (max-width: 600px) {
     a[href*="wa.me"] {
         font-size: 22px;
         padding: 5px;
     }
 }
-
 </style>
 </head>
 <body>
@@ -215,31 +218,44 @@ nav a[href*="admin"] { display:none; }
 <script>
 function createStars(){
     const container = document.querySelector('.stars-container');
-    if (!container || window.innerWidth <= 600) return;
+    if (!container) return;
 
     container.innerHTML = '';
     const headerHeight = container.offsetHeight;
 
-    const isMobile = window.innerWidth <= 768;
-    const numStars = isMobile ? 80 : 300;
+    const isMobile = window.innerWidth <= 600;
+
+    /* idadi ndogo sana kwenye simu */
+    const numStars = isMobile ? 30 : 300;
 
     for(let i = 0; i < numStars; i++){
         const star = document.createElement('div');
         star.classList.add('star');
-        const size = Math.random() * 2 + 1;
+
+        const size = isMobile 
+            ? Math.random() * 1.2 + 0.5   // ndogo kwenye simu
+            : Math.random() * 2 + 1;
+
         star.style.width = `${size}px`;
         star.style.height = `${size}px`;
         star.style.top = `${Math.random() * headerHeight}px`;
         star.style.left = `${Math.random() * window.innerWidth}px`;
-        star.style.animationDuration = `${2 + Math.random() * 3}s`;
+
+        /* animation polepole kwenye simu */
+        star.style.animationDuration = isMobile
+            ? `${4 + Math.random() * 4}s`
+            : `${2 + Math.random() * 3}s`;
+
         container.appendChild(star);
     }
 }
 
 createStars();
 
+/* resize ina delay (hailemei simu) */
 window.addEventListener('resize', () => {
     clearTimeout(window.starResizeTimer);
-    window.starResizeTimer = setTimeout(createStars, 300);
+    window.starResizeTimer = setTimeout(createStars, 500);
 });
 </script>
+
