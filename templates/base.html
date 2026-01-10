@@ -14,6 +14,15 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
+.footer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
 /* BODY */
 body {
     font-family: Arial, sans-serif;
@@ -123,7 +132,6 @@ nav a[href*="admin"] { display:none; }
         padding: 8px 12px;
     }
 }
-
 </style>
 </head>
 <body>
@@ -156,7 +164,7 @@ nav a[href*="admin"] { display:none; }
 </main>
 
 <footer style="position: relative; background:#002244; color:white; padding:20px 10px; font-size:14px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; max-width:1000px; margin:0 auto;">
+    <div class="footer-inner">
         <!-- Text Left -->
         <div style="flex:1 1 200px;">
             &copy; 2025 BEN-S.SUPPLY | Ubora Wetu Ni Fahari Yako
@@ -184,20 +192,7 @@ nav a[href*="admin"] { display:none; }
    <i class="fab fa-whatsapp"></i>
 </a>
 
-<style>
-@media screen and (max-width: 600px) {
-    footer div {
-        flex-direction: column;
-        text-align: center;
-        gap: 10px;
-    }
-    footer form {
-        justify-content: center;
-        width: 100%;
-    }
-}
-</style>
-  <script>
+<script>
     // Stars animation inside header only
     function createStars(){
         const container=document.querySelector('.stars-container');
