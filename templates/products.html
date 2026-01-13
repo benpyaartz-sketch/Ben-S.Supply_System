@@ -25,11 +25,19 @@
         {% set images = [product[3], product[4], product[5], product[6], product[7]] %}
 
         <!-- IMAGE SLIDER -->
-        <div class="image-slider" data-images="{{ images|join(',') }}">
-            {% for img in images if img %}
-            <img src="{{ url_for('static', filename='uploads/' + img) }}" alt="{{ product[1] }}">
-            {% endfor %}
-        </div>
+        <!-- IMAGE SLIDER -->
+<div class="image-slider" data-images="{{ images|join(',') }}">
+    {% for img in images if img %}
+    <img 
+        src="{{ url_for('static', filename='uploads/' + img) }}"
+        loading="lazy"
+        decoding="async"
+        width="300"
+        height="200"
+        alt="{{ product[1] }}"
+    >
+    {% endfor %}
+</div>
 
         <h3>{{ product[1] }}</h3>
         <p class="price">Tsh {{ "%.2f"|format(product[2]) }}</p>
