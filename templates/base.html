@@ -8,7 +8,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- Favicon -->
-<link rel="icon" type="image/png" href="{{ url_for('static', filename='right_logo.png') }}">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      media="print"
+      onload="this.media='all'">
 
 <!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -30,7 +34,7 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: url("{{ url_for('static', filename='images/background2.png') }}") no-repeat center center;
+    background: url("{{ url_for('static', filename='images/background2.webp') }}") no-repeat center center;
     background-size: cover;
     padding-top: 60px;
 }
