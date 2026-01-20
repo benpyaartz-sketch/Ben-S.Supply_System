@@ -38,36 +38,36 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-# ------------------ INITIALIZE + MIGRATION ------------------
+# ------------------ INITIALIZE DATABASE ------------------
 def init_db():
     with sqlite3.connect(DB_FILE, timeout=10) as conn:
-        conn.execute("PRAGMA journal_mode=WAL;")
+        conn.row_factory = sqlite3.Row
         cur = conn.cursor()
 
-        # Table ya feedback
+        # Feedback
         cur.execute("""
             CREATE TABLE IF NOT EXISTS feedback (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 email TEXT,
                 message TEXT NOT NULL,
-                created_at TEXT DEFAULT (DATETIME('now'))
+                created_at TEXT
             )
         """)
 
-        # Table ya orders
+        # Orders
         cur.execute("""
             CREATE TABLE IF NOT EXISTS orders (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 customer_name TEXT NOT NULL,
                 phone TEXT NOT NULL,
                 location TEXT NOT NULL,
-                order_date TEXT DEFAULT (DATETIME('now')),
+                order_date TEXT,
                 status TEXT DEFAULT 'Pending'
             )
         """)
 
-        # Table ya order_items
+        # Order items
         cur.execute("""
             CREATE TABLE IF NOT EXISTS order_items (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -75,30 +75,49 @@ def init_db():
                 product_id INTEGER,
                 product_name TEXT,
                 quantity INTEGER NOT NULL,
+                price REAL NOT NULL
+            )
+        """)
+                # Products
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS products (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
                 price REAL NOT NULL,
-                FOREIGN KEY(order_id) REFERENCES orders(id),
-                FOREIGN KEY(product_id) REFERENCES products(id)
+                image1 TEXT,
+                image2 TEXT,
+                image3 TEXT,
+                image4 TEXT,
+                image5 TEXT
+            )
+        """)
+        # Subscribers
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS subscribers (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT UNIQUE NOT NULL
             )
         """)
 
-        # Table ya admin
+        # Admin
         cur.execute("""
             CREATE TABLE IF NOT EXISTS admin (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT UNIQUE,
-                password TEXT,
+                username TEXT UNIQUE NOT NULL,
+                email TEXT NOT NULL,
+                password TEXT NOT NULL,
                 reset_token TEXT,
                 token_expiry TEXT
             )
         """)
 
-        # Create default admin ikiwa haipo
-        cur.execute("SELECT * FROM admin WHERE id=1")
+        # Create default admin
+        cur.execute("SELECT * FROM admin WHERE username='Ben'")
         if not cur.fetchone():
             hashed_password = generate_password_hash("1234")
             cur.execute(
-                "INSERT INTO admin (id, username, password) VALUES (1, 'admin', ?)", 
-                (hashed_password,)
+                "INSERT INTO admin (username, email, password) VALUES (?,?,?)",
+                ("Ben", "benpyaartz@gmail.com", hashed_password)
             )
 
         conn.commit()
@@ -108,14 +127,20 @@ EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS")
 EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 
 def send_reset_email(to_email, token):
+    if not EMAIL_ADDRESS or not EMAIL_PASSWORD:
+        print("❌ Email credentials hazijawekwa")
+        return
+
     subject = "Password Reset Link"
-    reset_link = reset_link = f"https://ben-s-supply-system.onrender.com/reset_password/{token}"
+    reset_link = f"https://ben-s-supply-system.onrender.com/reset_password/{token}"
     body = f"Tafadhali bonyeza link hii kubadilisha password yako:\n\n{reset_link}"
+
     msg = MIMEText(body)
-    msg['Subject'] = subject
-    msg['From'] = EMAIL_ADDRESS
-    msg['To'] = to_email
-    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+    msg["Subject"] = subject
+    msg["From"] = EMAIL_ADDRESS
+    msg["To"] = to_email
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         server.send_message(msg)
 
@@ -123,49 +148,36 @@ def send_reset_email(to_email, token):
 @app.route("/forgot_password", methods=["GET", "POST"])
 def forgot_password():
     message = None
+
     if request.method == "POST":
-        username = request.form["username"]
+        username = request.form.get("username")
+
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute("SELECT * FROM admin WHERE username=?", (username,))
         user = cur.fetchone()
+
         if user:
-            token = secrets.token_urlsafe(16)
-            expiry_time = datetime.utcnow() + timedelta(minutes=30)
-            cur.execute("UPDATE admin SET reset_token=?, token_expiry=? WHERE username=?", 
-                       (token, expiry_time.isoformat(), username))
+            # ✅ Generate token na expiry
+            token = secrets.token_urlsafe(32)
+            expiry = datetime.utcnow() + timedelta(minutes=30)
+
+            # ✅ Update DB
+            cur.execute(
+                "UPDATE admin SET reset_token=?, token_expiry=? WHERE username=?",
+                (token, expiry.isoformat(), username)
+            )
             conn.commit()
-            send_reset_email(EMAIL_ADDRESS, token)
+
+            # ✅ Tuma email
+            send_reset_email(user["email"], token)
             message = "Email yenye link ya kubadilisha password imetumwa."
         else:
             message = "Username haipo kwenye mfumo."
-        conn.close()
-    return render_template("forgot_password.html", message=message)
 
-@app.route("/reset_password/<token>", methods=["GET", "POST"])
-def reset_password(token):
-    message = None
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM admin WHERE reset_token=?", (token,))
-    user = cur.fetchone()
-    if not user:
         conn.close()
-        return "Token sio sahihi.", 404
-    expiry_str = user["token_expiry"]
-    expiry_time = datetime.fromisoformat(expiry_str) if expiry_str else None
-    if not expiry_time or datetime.utcnow() > expiry_time:
-        conn.close()
-        return "Token imeisha muda wake.", 403
-    if request.method == "POST":
-        new_password = request.form["new_password"]
-        hashed_password = generate_password_hash(new_password)
-        cur.execute("UPDATE admin SET password=?, reset_token=NULL, token_expiry=NULL WHERE id=?", (hashed_password, user["id"]))
-        conn.commit()
-        conn.close()
-        return redirect(url_for("admin_login"))
-    conn.close()
-    return render_template("reset_password.html", token=token, message=message)
+
+    return render_template("forgot_password.html", message=message)
 
 # ------------------ ADMIN LOGIN ------------------
 @app.route("/admin", methods=["GET", "POST"])
@@ -173,9 +185,10 @@ def reset_password(token):
 @app.route("/admin_login", methods=["GET", "POST"])
 def admin_login():
     error = None
+
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+        username = request.form.get("username")
+        password = request.form.get("password")
 
         conn = get_db_connection()
         cur = conn.cursor()
@@ -187,7 +200,7 @@ def admin_login():
             session["admin"] = username
             return redirect(url_for("admin_dashboard"))
         else:
-            error = "Username au Password si sahihi."
+            error = "Username au password si sahihi."
 
     return render_template("login.html", error=error)
 
